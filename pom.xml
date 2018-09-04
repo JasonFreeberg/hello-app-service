@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.microsoft.azure</groupId>
+    <artifactId>hello-app-service</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>hello-app-service</name>
+    <packaging>war</packaging>
+    <description>A simple application to demo Maven deployment to Azure App Service on Linux.</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.8.RELEASE</version>
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.build.timestamp.format>yyMMddHHmmssSSS</maven.build.timestamp.format>
+
+        <!-- dependency versions -->
+        <java.version>1.8</java.version>
+        <plugin.fmp.version>3.5.30</plugin.fmp.version>
+        <plugin.spotify.version>0.4.11</plugin.spotify.version>
+        <plugin.azure.webapp.version>0.1.3</plugin.azure.webapp.version>
+
+        <!-- get group and app names from the env variables -->
+        <docker.image.prefix>put-your-docker-registry-url</docker.image.prefix>
+        <azure.resourceGroup.name>freebergDemo</azure.resourceGroup.name>
+        <azure.app.name>helloappservice</azure.app.name>
+
+        <!-- where to start the app -->
+        <start-class>com.microsoft.azure.WebApplication</start-class>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- use embedded servlet container -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- To deploy locally to Tomcat -->
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.6.7</version>
+                <configuration>
+                    <container>
+                        <containerId>tomcat8x</containerId>
+                        <type>installed</type>
+                        <home>${TOMCAT_HOME}</home>
+                    </container>
+                    <configuration>
+                        <type>existing</type>
+                        <home>${TOMCAT_HOME}</home>
+                    </configuration>
+                </configuration>
+            </plugin>
+
+            <!-- Deploy to Tomcat on App Service-->
+            <plugin>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-webapp-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <configuration>
+                    <resourceGroup>${azure.resourceGroup.name}</resourceGroup>
+                    <appName>${azure.app.name}</appName>
+                    <linuxRuntime>tomcat 8.5-jre8</linuxRuntime>
+                    <deploymentType>war</deploymentType>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
